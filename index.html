@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Love Proposal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            background: linear-gradient(45deg, #ff6b6b, purple);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            perspective: 1000px;
+            color: white;
+        }
+
+        .container {
+            text-align: center;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+            max-width: 500px;
+            width: 90%;
+            z-index: 10;
+        }
+
+        .heart {
+            color: red;
+            font-size: 120px;
+            animation: heartbeat 1.5s ease-in-out infinite;
+            margin-bottom: 30px;
+            text-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        .question {
+            color: white;
+            font-size: 2.5em;
+            margin-bottom: 40px;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+            line-height: 1.4;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 40px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            margin: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .yes-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+            color: white;
+        }
+
+        .no-btn {
+            background: #333;
+            color: white;
+        }
+
+        .floating-hearts {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .floating-heart {
+            position: absolute;
+            color: rgba(255, 0, 0, 0.3);
+            font-size: 20px;
+            animation: float 6s linear infinite;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) scale(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-10vh) scale(1) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .result {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            text-align: center;
+        }
+
+        .result-content {
+            color: white;
+            font-size: 3em;
+            animation: scaleIn 0.5s ease-out;
+            max-width: 80%;
+            margin: 0 auto;
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                width: 95%;
+                padding: 20px;
+            }
+
+            .question {
+                font-size: 1.8em;
+            }
+
+            .heart {
+                font-size: 80px;
+            }
+
+            .buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                padding: 12px 30px;
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="heart">❤</div>
+        <div class="question" id="question">Will you be mine forever?</div>
+        <div class="buttons">
+            <button class="btn yes-btn" onclick="respond('yes')">Yes</button>
+            <button class="btn no-btn" id="noBtn" onmouseover="moveButton(this)" ontouchstart="moveButton(this)">No</button>
+        </div>
+        <div class="floating-hearts"></div>
+    </div>
+    <div class="result">
+        <div class="result-content"></div>
+    </div>
+    <script>
+        const messages = [
+            "Are you sure? 😢",
+    "My heart is breaking! 💔",
+    "One more chance? 🥺",
+    "We're meant to be! 💖",
+    "Think about our future! 🌈",
+    "Don't give up on love! 🌹",
+    "Last chance! 😔",
+    "I'll make you happy! 🥰"
+        ];
+        let messageIndex = 0;
+        let clickCount = 0;
+
+        function createFloatingElements() {
+            const container = document.querySelector('.floating-hearts');
+
+            const heart = document.createElement('div');
+            heart.classList.add('floating-heart');
+            heart.innerHTML = '❤';
+            heart.style.left = `${Math.random() * 100}vw`;
+            heart.style.fontSize = `${Math.random() * 20 + 10}px`;
+            heart.style.animationDuration = `${Math.random() * 3 + 3}s`;
+            container.appendChild(heart);
+
+            setTimeout(() => heart.remove(), 6000);
+        }
+
+        setInterval(createFloatingElements, 300);
+
+        function moveButton(btn) {
+            const x = Math.random() * (window.innerWidth - btn.offsetWidth);
+            const y = Math.random() * (window.innerHeight - btn.offsetHeight);
+            const margin = 50;
+
+            const safeX = Math.min(Math.max(x, margin), window.innerWidth - btn.offsetWidth - margin);
+            const safeY = Math.min(Math.max(y, margin), window.innerHeight - btn.offsetHeight - margin);
+
+            btn.style.position = 'fixed';
+            btn.style.left = `${safeX}px`;
+            btn.style.top = `${safeY}px`;
+
+            const questionEl = document.getElementById('question');
+            questionEl.textContent = messages[messageIndex];
+            messageIndex = (messageIndex + 1) % messages.length;
+            clickCount++;
+        }
+
+        function respond(answer) {
+            const result = document.querySelector('.result');
+            const resultContent = document.querySelector('.result-content');
+            result.style.display = 'flex';
+
+            if (answer === 'yes') {
+                resultContent.innerHTML = "<div>" +
+                    "<div>I Love You Too! ❤</div>" +
+                    "<div>Together Forever & Always! 💍✨</div>" +
+                    "<div>You've made me the happiest person alive! 😍🥰</div>" +
+                    "</div>";
+
+                const celebrationInterval = setInterval(createFloatingElements, 100);
+                setTimeout(() => clearInterval(celebrationInterval), 15000);
+            } else {
+                resultContent.textContent = "You can always change your mind! ❤";
+            }
+        }
+    </script>
+</body>
+</html>
